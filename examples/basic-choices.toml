@@ -1,0 +1,133 @@
+[story]
+
+[story.pages.start]
+content = """
+You wake up by the camp fire you had set up last night. The fire has run out already, save
+for the last few embers shining among the burnt up sticks and underbrush.
+The sun is starting to rise above the horizon, but the mouth of the cave you had
+set up your shabby camp next to is barely lit up.
+
+You pick up your sword and shield. You won't be needing the rest of your gear where you're going."""
+choices = [
+    { to = "entering-the-cave", text = "Walk into the cave" }
+]
+
+[story.pages.entering-the-cave]
+content = """
+You instantly feel the heat rising as you walk into the wide opening of the cave.
+A red glow lights up the walls of the cave periodically, always paired with the heat building up before
+calming down again. As you see the cave better in this ember glow, you clearly see it come from behind a bend
+"""
+choices = [
+    { to = "running-away", text = "Run away" },
+    { to = "going-deeper", text = "Continue deeper into the cave" },
+]
+
+[story.pages.going-deeper]
+content = """
+As you go around the bend, you finally see what you were sent to slay. A green dragon sits on top
+of a modest pile of gold in the corner of the chamber, angrily spewing flames into the air around
+itself every few seconds. It doesn't seem to notice you sneak into its lair, even with your worn
+down plate armour banging against itself on your every step.
+"""
+choices = [
+    { to = "approaching-the-dragon", text = "Continue sneaking towards the dragon" },
+    { to = "attacking-the-dragon", text = "Charge at the dragon with your sword" },
+    { to = "running-away", text = "Try to escape from the beast" },
+]
+
+[story.pages.approaching-the-dragon]
+content = """
+The dragon pays no attention to you. As you inch closer to the angry beast you
+can clearly a spear sticking out of its scaly chest. It doesn't seem to be in particularily deep,
+but it looks painful nonetheless.
+"""
+choices = [
+    { to = "pushing-the-spear", text = "Grab the spear and push it into the dragon's chest" },
+    { to = "pulling-the-spear", text = "Try to pull the spear out of the dragon" },
+]
+
+[story.pages.pushing-the-spear]
+content = """
+You grab the spear. As you start pushing it deeper into the dragon's flesh,
+it roars in pain and quickly turns its hideous head towards you.
+"""
+choices = [
+    { to = "keep-pushing", text = "Keep pushing the spear" },
+    { to = "pulling-the-spear", text = "Pull it out instead" },
+]
+
+[story.pages.keep-pushing]
+content = """
+The dragon roars in anger as the spear goes deeper and deeper into its chest. The cave is filled with flames
+as the dragon tries to fight, but the pain is too much. Suddenly the flames stop and the cave quiets down. The
+dragon falls dead, narrowly missing you with its huge carcass.
+The dragon is dead, you have won. Now you just need to somehow gather your loot from below the dead beast...
+"""
+
+[story.pages.attacking-the-dragon]
+content = """
+You run towards the beast with your sword at the ready. The loud thumping of your boots and
+the chaotic clanking of your plate armor almost instantly draws its attention and you see
+its head turning towards you, with smoke already rising out of the large nostrils getting ready to cook you.
+
+Before you have time to even consider dodging you hit a wall of fire. You feel your skin searing,
+your armor turning into a makeshift oven, the flames burning the inside of your lungs.
+Your death is painful but quick, leaving a smoking corpse laying only a few meters from where you
+made the decision to blindly charge at a dragon
+"""
+
+[story.pages.running-away]
+content = """
+You decide to run away. The stomping of your boots seems to draw the attention of the beast in the cave,
+but it doesn't give chase. You feel flames heating your back but the fresh morning air outside
+quickly gives you relief when you get out unharmed.
+
+You may be a coward, but at least you're a living, uncooked coward. You may need to come up
+with a lie or two to save your reputation, but there's plenty of time to come up with a story on your way
+back to town.
+"""
+
+[story.pages.pulling-the-spear]
+content = """
+You grab the spear. It seems to be lodged in pretty tightly. You'll need to sheath your sword to
+get a good grip with both of your hands.
+"""
+choices = [
+    { to = "keep-pulling", text = "Sheath your sword and grab the spear with both of your hands" },
+    { to = "pushing-the-spear", text = "Start pushing the spear into the dragon's chest" },
+    { to = "running-away", text = "Fuck this, I'm running away" },
+]
+
+[story.pages.keep-pulling]
+content = """
+You get a good grasp of the wooden spear shaft. With a good grip it isn't hard to pull the spear.
+But just as the spear starts moving out of the beast's chest, you see the dragon's head turning towards you.
+"""
+choices = [
+    { to = "pullin-the-spear-out", text = "Give the spear one final yank" },
+    { to = "giving-up", text = "Run" },
+]
+
+[story.pages.pulling-the-spear-out]
+content = """
+As you feel the spear making its way out, the dragon's maw is getting ready. You give it one final
+pull before getting yourself cooked.
+To your surprise, you really do pull out the spear just moments before the dragon's inferno materialized.
+
+You fall back on your back, the bloody spear flying in one direction while the dragon roars in agony. After
+a few seconds of furious roars, the dragon flies out of the cave narrowly missing your prone chest with its claws
+on the way out.
+
+It seems like you're the master of the cave now. Who knows if you ended up helping the dragon or
+if it's out there bleeding to death, but you struggle to care when you realize
+how large the dragon's hoard really is.
+"""
+
+[story.pages.giving-up]
+content = """
+You let go of the spear. You turn to run, making a few steps towards the cave's entrance before you feel the
+dragon's teeth sink deep into your torso. Your legs stay there by the dragon's feet as the rest of you is
+flung into the other side of the dragon's lair. As the world turns dark, the beast's breath provides
+the final light at hte end of the tunnel.
+"""
