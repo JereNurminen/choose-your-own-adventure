@@ -60,14 +60,14 @@ fn main() {
     let mut error_msg = String::new();
 
     loop {
-        write(&error_msg);
-        user_input = "".to_string();
         let page = story
             .pages
             .get(&state.current_page)
             .expect("page not found");
 
+        user_input = "".to_string();
         clear_screen();
+        write(&error_msg);
         write(&page.content);
 
         // no choices means we've reached the story's last page
@@ -88,7 +88,7 @@ fn main() {
         //write(&format!("'{}'", user_input));
         let input = match user_input.trim().parse::<usize>() {
             Ok(valid_int) => {
-                if valid_int <= choices.len() {
+                if valid_int > 0 && valid_int <= choices.len() {
                     valid_int
                 } else {
                     error_msg = "Choose from the options given".to_string();
