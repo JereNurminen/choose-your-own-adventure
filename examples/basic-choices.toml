@@ -105,7 +105,7 @@ You get a good grasp of the wooden spear shaft. With a good grip it isn't hard t
 But just as the spear starts moving out of the beast's chest, you see the dragon's head turning towards you.
 """
 choices = [
-    { to = "pullin-the-spear-out", text = "Give the spear one final yank" },
+    { to = "pulling-the-spear-out", text = "Give the spear one final yank" },
     { to = "giving-up", text = "Run" },
 ]
 
