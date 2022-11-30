@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::error::Error;
 use std::io::{self, stdout, Read, Write};
 use toml;
 
@@ -34,6 +35,25 @@ fn parse_story(source: &String) -> Result<Story, toml::de::Error> {
     toml::from_str(source)
 }
 
+fn validate_paths(story: &Story) -> Result<(), String> {
+    for page in &story.pages {
+        match &page.1.choices {
+            Some(referenced_pages) => {
+                for referenced_page in referenced_pages {
+                    if !story.pages.contains_key(&referenced_page.to) {
+                        return Err(format!(
+                            "page {} references nonexistent page {}",
+                            page.0, referenced_page.to
+                        ));
+                    }
+                }
+            }
+            None => continue,
+        }
+    }
+    Ok(())
+}
+
 fn write(output: &String) {
     let mut stdout = std::io::stdout();
     stdout
@@ -50,7 +70,10 @@ fn main() {
     let file_path = file_arg.expect("path to story file is missing");
     let file_content = read_file(&file_path).expect("reading story file failed");
     let story = parse_story(&file_content).expect("parsing the file failed");
-    println!("pages parsed: {}", story.pages.len());
+    match validate_paths(&story) {
+        Ok(_) => {}
+        Err(e) => panic!("{}", e),
+    }
 
     let mut state = GameState {
         current_page: "start".to_string(),
