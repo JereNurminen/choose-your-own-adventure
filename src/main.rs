@@ -1,57 +1,13 @@
-use serde::Deserialize;
-use std::collections::HashMap;
-use std::error::Error;
-use std::io::{self, stdout, Read, Write};
-use toml;
+use std::io::Write;
 
-type PageId = String;
-
-#[derive(Deserialize, Debug)]
-struct Story {
-    pages: HashMap<PageId, Page>,
-}
-
-#[derive(Deserialize, Debug)]
-struct Page {
-    content: String,
-    choices: Option<Vec<Choice>>,
-}
-
-#[derive(Deserialize, Debug)]
-struct Choice {
-    text: String,
-    to: PageId,
-}
+use cyoa::{parsing, shared};
 
 struct GameState {
-    current_page: PageId,
+    current_page: shared::PageId,
 }
 
 fn read_file(path: &String) -> Result<String, std::io::Error> {
     std::fs::read_to_string(path)
-}
-
-fn parse_story(source: &String) -> Result<Story, toml::de::Error> {
-    toml::from_str(source)
-}
-
-fn validate_paths(story: &Story) -> Result<(), String> {
-    for page in &story.pages {
-        match &page.1.choices {
-            Some(referenced_pages) => {
-                for referenced_page in referenced_pages {
-                    if !story.pages.contains_key(&referenced_page.to) {
-                        return Err(format!(
-                            "page {} references nonexistent page {}",
-                            page.0, referenced_page.to
-                        ));
-                    }
-                }
-            }
-            None => continue,
-        }
-    }
-    Ok(())
 }
 
 fn write(output: &String) {
@@ -69,16 +25,15 @@ fn main() {
     let file_arg = std::env::args().nth(1);
     let file_path = file_arg.expect("path to story file is missing");
     let file_content = read_file(&file_path).expect("reading story file failed");
-    let story = parse_story(&file_content).expect("parsing the file failed");
-    match validate_paths(&story) {
-        Ok(_) => {}
+    let story = match parsing::parse_story(&file_content) {
+        Ok(story) => story,
         Err(e) => panic!("{}", e),
-    }
+    };
 
     let mut state = GameState {
         current_page: "start".to_string(),
     };
-    let mut user_input = String::new();
+    let mut user_input;
     let stdin = std::io::stdin();
     let mut error_msg = String::new();
 
@@ -118,7 +73,7 @@ fn main() {
                     continue;
                 }
             }
-            Err(e) => {
+            Err(_e) => {
                 error_msg = "Give a valid number".to_string();
                 continue;
             }
