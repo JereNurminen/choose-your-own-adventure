@@ -1,5 +1,5 @@
 mod validation {
-    use crate::shared::Story;
+    use crate::core::Story;
 
     fn validate_paths(story: &Story) -> Result<(), String> {
         for page in &story.pages {
@@ -27,7 +27,7 @@ mod validation {
     }
 }
 
-use crate::shared::Story;
+use crate::core::Story;
 use toml;
 
 pub fn parse_story(source: &String) -> Result<Story, String> {

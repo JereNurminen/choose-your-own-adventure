@@ -1,10 +1,6 @@
-use std::io::Write;
+use std::{error::Error, io::Write};
 
-use cyoa::{parsing, shared};
-
-struct GameState {
-    current_page: shared::PageId,
-}
+use cyoa::{core, parsing, shared};
 
 fn read_file(path: &String) -> Result<String, std::io::Error> {
     std::fs::read_to_string(path)
@@ -25,60 +21,46 @@ fn main() {
     let file_arg = std::env::args().nth(1);
     let file_path = file_arg.expect("path to story file is missing");
     let file_content = read_file(&file_path).expect("reading story file failed");
-    let story = match parsing::parse_story(&file_content) {
-        Ok(story) => story,
-        Err(e) => panic!("{}", e),
-    };
+    let story = parsing::parse_story(&file_content).expect("parsing story failed");
 
-    let mut state = GameState {
-        current_page: "start".to_string(),
-    };
-    let mut user_input;
     let stdin = std::io::stdin();
-    let mut error_msg = String::new();
+    let mut user_input;
+    let mut error_toast = String::new();
+
+    let mut game = core::Game::new(&story).expect("starting game with this story failed");
 
     loop {
-        let page = story
-            .pages
-            .get(&state.current_page)
-            .expect("page not found");
+        let current_page = game.get_current_page().unwrap();
 
         user_input = "".to_string();
         clear_screen();
-        write(&error_msg);
-        write(&page.content);
+        write(&error_toast);
+        error_toast = "".to_string();
+        write(&current_page.content);
+        std::io::stdout().flush().expect("io error");
 
-        // no choices means we've reached the story's last page
-        let choices = match &page.choices {
-            Some(options) => options,
-            None => {
-                break;
-            }
-        };
-
-        for (i, choice) in choices.iter().enumerate() {
-            write(&format!("{}. {}", i + 1, choice.text))
-        }
-
-        std::io::stdout().flush();
-        stdin.read_line(&mut user_input);
-
-        //write(&format!("'{}'", user_input));
-        let input = match user_input.trim().parse::<usize>() {
-            Ok(valid_int) => {
-                if valid_int > 0 && valid_int <= choices.len() {
-                    valid_int
-                } else {
-                    error_msg = "Choose from the options given".to_string();
-                    continue;
+        match &current_page.choices {
+            Some(choices) => {
+                for (i, choice) in choices.iter().enumerate() {
+                    write(&format!("{}: {}", i + 1, &choice.text));
                 }
             }
+            None => break,
+        }
+
+        stdin.read_line(&mut user_input).expect("io error");
+
+        let input = match user_input.trim().parse::<usize>() {
+            Ok(valid_int) => valid_int - 1,
             Err(_e) => {
-                error_msg = "Give a valid number".to_string();
+                error_toast = "Give a valid number".to_string();
                 continue;
             }
         };
 
-        state.current_page = choices[input - 1].to.clone();
+        match game.make_choice(&input) {
+            Ok(_) => continue,
+            Err(_) => error_toast = "Invalid choice".to_string(),
+        };
     }
 }
