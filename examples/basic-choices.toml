@@ -1,3 +1,5 @@
+start = "start"
+
 [pages]
 
 [pages.start]
