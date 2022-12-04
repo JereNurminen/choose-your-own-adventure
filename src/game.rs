@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use std::{clone, collections::HashMap};
+use std::collections::HashMap;
 
 pub type PageId = String;
 
@@ -7,6 +7,14 @@ pub type PageId = String;
 pub struct Story {
     pub start: PageId,
     pub pages: HashMap<PageId, Page>,
+    pub flags: Option<HashMap<String, Flag>>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Flag {
+    pub id: String,
+    pub default: bool,
+    pub value: Option<bool>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -16,14 +24,38 @@ pub struct Page {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub enum ActionType {
+    EnableFlag,
+    DisableFlag,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Action {
+    action_type: ActionType,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub enum ConditionType {
+    Flag(bool),
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Condition {
+    condition_type: ConditionType,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct Choice {
     pub text: String,
     pub to: PageId,
+    pub actions: Option<Vec<Action>>,
+    pub conditions: Option<Vec<Condition>>,
 }
 
 #[derive(Debug)]
 pub struct GameState {
     current_page: PageId,
+    flags: HashMap<String, Flag>,
 }
 
 #[derive(Debug)]
@@ -51,6 +83,11 @@ impl Game {
             story: story.clone(),
             state: GameState {
                 current_page: story.start.clone(),
+                flags: if let Some(flags) = &story.flags {
+                    flags.clone()
+                } else {
+                    HashMap::new()
+                },
             },
         })
     }

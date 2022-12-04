@@ -1,6 +1,6 @@
 use std::{error::Error, io::Write};
 
-use cyoa::{game, parsing, shared};
+use cyoa::{game, parsing};
 
 fn read_file(path: &String) -> Result<String, std::io::Error> {
     std::fs::read_to_string(path)
