@@ -1,6 +1,6 @@
 use std::{error::Error, io::Write};
 
-use cyoa::{core, parsing, shared};
+use cyoa::{game, parsing, shared};
 
 fn read_file(path: &String) -> Result<String, std::io::Error> {
     std::fs::read_to_string(path)
@@ -27,7 +27,7 @@ fn main() {
     let mut user_input;
     let mut error_toast = String::new();
 
-    let mut game = core::Game::new(&story).expect("starting game with this story failed");
+    let mut game = game::Game::new(&story).expect("starting game with this story failed");
 
     loop {
         let current_page = game.get_current_page().unwrap();

@@ -1,5 +1,5 @@
 mod validation {
-    use crate::core::Story;
+    use crate::game::Story;
 
     fn validate_paths(story: &Story) -> Result<(), String> {
         for page in &story.pages {
@@ -27,7 +27,7 @@ mod validation {
     }
 }
 
-use crate::core::Story;
+use crate::game::Story;
 use toml;
 
 pub fn parse_story(source: &String) -> Result<Story, String> {
