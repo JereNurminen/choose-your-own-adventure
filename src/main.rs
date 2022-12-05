@@ -40,12 +40,12 @@ fn main() {
         std::io::stdout().flush().expect("io error");
 
         match &current_page.choices {
-            Some(choices) => {
+            choices if choices.len() > 0 => {
                 for (i, choice) in choices.iter().enumerate() {
                     write(&format!("{}: {}", i + 1, &choice.text));
                 }
             }
-            None => break,
+            _ => break,
         }
 
         stdin.read_line(&mut user_input).expect("io error");

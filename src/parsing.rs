@@ -4,7 +4,7 @@ mod validation {
     fn validate_paths(story: &Story) -> Result<(), String> {
         for page in &story.pages {
             match &page.1.choices {
-                Some(referenced_pages) => {
+                referenced_pages if referenced_pages.len() > 0 => {
                     for referenced_page in referenced_pages {
                         if !story.pages.contains_key(&referenced_page.to) {
                             return Err(format!(
@@ -14,7 +14,7 @@ mod validation {
                         }
                     }
                 }
-                None => continue,
+                _ => continue,
             }
         }
         return Ok(());

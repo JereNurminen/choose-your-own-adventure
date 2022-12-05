@@ -7,7 +7,8 @@ pub type PageId = String;
 pub struct Story {
     pub start: PageId,
     pub pages: HashMap<PageId, Page>,
-    pub flags: Option<HashMap<String, Flag>>,
+    #[serde(default = "HashMap::new")]
+    pub flags: HashMap<String, Flag>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -20,7 +21,8 @@ pub struct Flag {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Page {
     pub content: String,
-    pub choices: Option<Vec<Choice>>,
+    #[serde(default = "Vec::new")]
+    pub choices: Vec<Choice>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -48,8 +50,10 @@ pub struct Condition {
 pub struct Choice {
     pub text: String,
     pub to: PageId,
-    pub actions: Option<Vec<Action>>,
-    pub conditions: Option<Vec<Condition>>,
+    #[serde(default = "Vec::new")]
+    pub actions: Vec<Action>,
+    #[serde(default = "Vec::new")]
+    pub conditions: Vec<Condition>,
 }
 
 #[derive(Debug)]
@@ -83,11 +87,7 @@ impl Game {
             story: story.clone(),
             state: GameState {
                 current_page: story.start.clone(),
-                flags: if let Some(flags) = &story.flags {
-                    flags.clone()
-                } else {
-                    HashMap::new()
-                },
+                flags: story.flags.clone(),
             },
         })
     }
@@ -97,7 +97,12 @@ impl Game {
     }
 
     fn get_choices(&self) -> Option<&Vec<Choice>> {
-        self.get_page(&self.state.current_page)?.choices.as_ref()
+        let choices = &self.get_page(&self.state.current_page)?.choices;
+        let choice_count = choices.len();
+        match choice_count {
+            l if l > 0 => Some(&choices),
+            _ => None,
+        }
     }
 
     pub fn make_choice(&mut self, input: &usize) -> Result<Page, GameError> {
