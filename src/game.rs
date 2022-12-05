@@ -77,11 +77,13 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(story: &Story) -> Result<Game, String> {
+    pub fn new(story: &Story) -> Result<Game, GameError> {
         story
             .pages
             .get(&story.start)
-            .ok_or("given starting page id not found")?;
+            .ok_or(GameError::PageNotFound(
+                "given starting page id not found".to_string(),
+            ))?;
 
         Ok(Game {
             story: story.clone(),
@@ -105,8 +107,8 @@ impl Game {
         }
     }
 
-    pub fn make_choice(&mut self, input: &usize) -> Result<Page, GameError> {
-        let choice = *input;
+    pub fn make_choice(&mut self, input: usize) -> Result<Page, GameError> {
+        let choice = input;
         let next_page_id = match self.get_choices() {
             Some(choices) => {
                 let choice = choices
@@ -128,5 +130,93 @@ impl Game {
 
     pub fn get_current_page(&self) -> Option<&Page> {
         self.get_page(&self.state.current_page)
+    }
+}
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    fn get_test_story() -> Story {
+        Story {
+            start: String::from("page1"),
+            flags: HashMap::from([(
+                "flag1".to_string(),
+                Flag {
+                    id: "flag1".to_string(),
+                    default: false,
+                    value: Option::Some(false),
+                },
+            )]),
+            pages: HashMap::from([
+                (
+                    "page1".to_string(),
+                    Page {
+                        content: "page 1".to_string(),
+                        choices: vec![
+                            Choice {
+                                to: "page2".to_string(),
+                                text: "to page 2".to_string(),
+                                actions: vec![],
+                                conditions: vec![],
+                            },
+                            Choice {
+                                to: "page3".to_string(),
+                                text: "to page 3".to_string(),
+                                actions: vec![],
+                                conditions: vec![],
+                            },
+                        ],
+                    },
+                ),
+                (
+                    "page2".to_string(),
+                    Page {
+                        content: "page 2".to_string(),
+                        choices: vec![Choice {
+                            to: "page4".to_string(),
+                            text: "to page 4".to_string(),
+                            actions: vec![],
+                            conditions: vec![],
+                        }],
+                    },
+                ),
+                (
+                    "page3".to_string(),
+                    Page {
+                        content: "page 3".to_string(),
+                        choices: vec![],
+                    },
+                ),
+                (
+                    "page4".to_string(),
+                    Page {
+                        content: "page 4".to_string(),
+                        choices: vec![],
+                    },
+                ),
+            ]),
+        }
+    }
+
+    #[test]
+    fn test_story_progression() -> Result<(), GameError> {
+        let story = get_test_story();
+        let mut game = Game::new(&story)?;
+
+        assert_eq!(game.get_current_page().unwrap().content, "page 1");
+        assert_eq!(game.get_current_page().unwrap().choices.len(), 2);
+
+        game.make_choice(0)?;
+
+        assert_eq!(game.get_current_page().unwrap().content, "page 2");
+        assert_eq!(game.get_current_page().unwrap().choices.len(), 1);
+
+        game.make_choice(0)?;
+
+        assert_eq!(game.get_current_page().unwrap().content, "page 4");
+        assert_eq!(game.get_current_page().unwrap().choices.len(), 0);
+
+        Ok(())
     }
 }

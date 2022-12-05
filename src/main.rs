@@ -58,7 +58,7 @@ fn main() {
             }
         };
 
-        match game.make_choice(&input) {
+        match game.make_choice(input) {
             Ok(_) => continue,
             Err(_) => error_toast = "Invalid choice".to_string(),
         };
