@@ -44,7 +44,7 @@ pub struct Action {
 
 #[derive(Deserialize, Debug, Clone)]
 pub enum ConditionType {
-    Flag(String, bool),
+    Flag { flag_name: String, value: bool },
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -122,7 +122,7 @@ impl Game {
 
         match conditions.len() {
             l if l > 0 => conditions.any(|condition| match &condition.condition_type {
-                ConditionType::Flag(flag_name, value) => match self.get_flag(&flag_name) {
+                ConditionType::Flag { flag_name, value } => match self.get_flag(&flag_name) {
                     Some(f) => return if f.value == *value { true } else { false },
                     None => return false,
                 },
