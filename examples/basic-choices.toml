@@ -1,5 +1,10 @@
 start = "start"
 
+[flags]
+[flags.took_sword]
+id = "took_sword"
+default = false
+
 [pages]
 
 [pages.start]
@@ -9,7 +14,20 @@ for the last few embers shining among the burnt up sticks and underbrush.
 The sun is starting to rise above the horizon, but the mouth of the cave you had
 set up your shabby camp next to is barely lit up.
 
-You pick up your sword and shield. You won't be needing the rest of your gear where you're going."""
+The pile of gear you left next to your tent is still there. At the top of the unorganized mess lays your sword
+"""
+choices = [
+    { to = "picked-up-sword", text = "Pick up your trusty sword", actions = [ { action_type =  { EnableFlag = "took_sword" } } ] },
+    { to = "entering-the-cave", text = "Walk into the cave" }
+]
+
+[pages.picked-up-sword]
+content = """
+You grab your sword. It may be dirty and dented, but it still manages to reflect
+a bit of sunlight in your eyes through all the grime.
+
+You've been through some serious shit together.
+"""
 choices = [
     { to = "entering-the-cave", text = "Walk into the cave" }
 ]
@@ -34,7 +52,7 @@ down plate armour banging against itself on your every step.
 """
 choices = [
     { to = "approaching-the-dragon", text = "Continue sneaking towards the dragon" },
-    { to = "attacking-the-dragon", text = "Charge at the dragon with your sword" },
+    { to = "attacking-the-dragon", text = "Charge at the dragon with your sword", conditions = [ { condition_type = { Flag = { flag_name = "took_sword", value = true } } } ] },
     { to = "running-away", text = "Try to escape from the beast" },
 ]
 
@@ -92,11 +110,11 @@ back to town.
 
 [pages.pulling-the-spear]
 content = """
-You grab the spear. It seems to be lodged in pretty tightly. You'll need to sheath your sword to
-get a good grip with both of your hands.
+You grab the spear. It seems to be lodged in pretty tightly. You'll need to pull harder if you wish to dislodge it.
 """
 choices = [
-    { to = "keep-pulling", text = "Sheath your sword and grab the spear with both of your hands" },
+    { to = "keep-pulling", text = "Sheath your sword and grab the spear with both of your hands", conditions = [ { condition_type = { Flag = { flag_name = "took_sword", value = true } } } ] },
+    { to = "keep-pulling", text = "Keep pulling", conditions = [ { condition_type = { Flag = { flag_name = "took_sword", value = false } } } ] },
     { to = "pushing-the-spear", text = "Start pushing the spear into the dragon's chest" },
     { to = "running-away", text = "Fuck this, I'm running away" },
 ]
