@@ -116,23 +116,19 @@ impl Game {
         self.state.flags.get(flag_name)
     }
 
+    // If any of the conditions is met, the choice is visible and valid
     fn is_choice_visible(&self, choice: &Choice) -> bool {
-        for condition in &choice.conditions {
-            match &condition.condition_type {
-                ConditionType::Flag(flag_name, value) => {
-                    let flag = self.get_flag(&flag_name);
-                    match flag {
-                        Some(f) => {
-                            if f.value != *value {
-                                return false;
-                            }
-                        }
-                        None => return false,
-                    }
-                }
-            }
+        let mut conditions = choice.conditions.iter(); // TODO: Not sure why I had to make this mut, find out later
+
+        match conditions.len() {
+            l if l > 0 => conditions.any(|condition| match &condition.condition_type {
+                ConditionType::Flag(flag_name, value) => match self.get_flag(&flag_name) {
+                    Some(f) => return if f.value == *value { true } else { false },
+                    None => return false,
+                },
+            }),
+            _ => true,
         }
-        true
     }
 
     fn get_choices(&self) -> Vec<&Choice> {
@@ -140,33 +136,55 @@ impl Game {
             Some(p) => &p.choices,
             None => return vec![],
         };
-        let valid_choices: Vec<&Choice> = choices
+        choices
             .iter()
             .filter(|choice| self.is_choice_visible(choice))
-            .collect();
-        valid_choices
+            .collect()
+    }
+
+    fn set_flag(&mut self, flag_name: &String, value: bool) -> () {
+        self.state.flags.insert(
+            flag_name.clone(),
+            FlagState {
+                id: flag_name.clone(),
+                value,
+            },
+        );
+    }
+
+    fn do_action(&mut self, action: &ActionType) {
+        match action {
+            ActionType::EnableFlag(flag) => self.set_flag(&flag, true),
+            ActionType::DisableFlag(flag) => self.set_flag(&flag, false),
+        }
     }
 
     pub fn make_choice(&mut self, input: usize) -> Result<Page, GameError> {
         let choice = input;
         let choices = self.get_choices();
-        let next_page_id = match choices.len() {
+        let next_choice = match choices.len() {
             l if l > 0 => {
                 let choice = choices
                     .get(choice)
                     .ok_or(GameError::ChoiceNotFound(choice))?;
-                Ok(choice.to.clone())
+                Ok(choice.to_owned().to_owned()) // TODO: deal with this without this nested bullshit
             }
             _ => return Err(GameError::ChoiceNotFound(choice)),
         }?;
-        match self.get_page(&next_page_id) {
+        let next_page = next_choice.to.clone();
+        let next_page_content = match self.get_page(&next_page) {
             Some(page) => {
                 let page_content = page.clone();
-                self.state.current_page = next_page_id.into();
                 Ok(page_content)
             }
-            None => Err(GameError::NextPageNotFound(next_page_id.to_string())),
-        }
+            None => Err(GameError::NextPageNotFound(next_page.to_string())),
+        };
+        next_choice
+            .actions
+            .iter()
+            .for_each(|a| self.do_action(&a.action_type));
+        self.state.current_page = next_page.to_string();
+        return next_page_content;
     }
 
     pub fn get_current_page(&self) -> Option<Page> {
@@ -302,6 +320,11 @@ mod tests {
         game.make_choice(0)?;
 
         assert_eq!(game.get_current_page().unwrap().content, "page 4");
+        assert_eq!(game.get_current_page().unwrap().choices.len(), 1);
+
+        game.make_choice(0)?;
+
+        assert_eq!(game.get_current_page().unwrap().content, "page 5");
         assert_eq!(game.get_current_page().unwrap().choices.len(), 0);
 
         Ok(())
